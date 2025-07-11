@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Hide scrollbars */
+        }
+        .font-pacifico {
+            font-family: 'Pacifico', cursive;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place canvas behind everything */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400">
+    <!-- Canvas for confetti effect -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main content container -->
+    <div class="min-h-screen flex flex-col items-center justify-center text-center p-4">
+        <div class="bg-white/30 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl border border-white/50">
+            <h1 id="birthday-greeting" class="font-pacifico text-5xl md:text-7xl text-white drop-shadow-lg">Happy Birthday, Monu Didi!</h1>
+            <p id="birthday-message" class="mt-4 text-lg md:text-2xl text-gray-800">
+                Wishing you the best on your special day!
+            </p>
+        </div>
+        <div class="mt-8">
+            <p class="text-white font-semibold text-lg drop-shadow-md px-4">
+                man lga ke padh, dhayan rakh or kabhi bhi kuch puchna ho turant call karo.
+                <br>
+                HAVE A GREAT YEAR AHEAD.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- Personalized Message from URL ---
+        window.onload = function() {
+            // Get the URL parameters
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name');
+
+            // If a name is provided in the URL, update the greeting
+            if (name) {
+                const greetingElement = document.getElementById('birthday-greeting');
+                // Sanitize the name to prevent HTML injection
+                const sanitizedName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                greetingElement.textContent = `Happy Birthday, ${sanitizedName}!`;
+            }
+            
+            // Start the confetti
+            startConfetti();
+        };
+
+        // --- Confetti Animation ---
+        function startConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const confettiPieces = [];
+            const numberOfPieces = 200;
+            const colors = ['#f4a261', '#e76f51', '#2a9d8f', '#264653', '#e9c46a', '#fefae0'];
+
+            // Function to create a single confetti piece
+            function createPiece() {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height, // Start above the screen
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedX: Math.random() * 3 - 1.5,
+                    speedY: Math.random() * 3 + 2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 20 - 10
+                };
+            }
+
+            // Initialize confetti pieces
+            for (let i = 0; i < numberOfPieces; i++) {
+                confettiPieces.push(createPiece());
+            }
+
+            // Animation loop
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confettiPieces.forEach((piece, index) => {
+                    // Update position and rotation
+                    piece.x += piece.speedX;
+                    piece.y += piece.speedY;
+                    piece.rotation += piece.rotationSpeed;
+
+                    // Draw piece
+                    ctx.save();
+                    ctx.translate(piece.x + piece.size / 2, piece.y + piece.size / 2);
+                    ctx.rotate(piece.rotation * Math.PI / 180);
+                    ctx.fillStyle = piece.color;
+                    ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+                    ctx.restore();
+                    
+                    // Reset piece if it goes off screen
+                    if (piece.y > canvas.height) {
+                        confettiPieces[index] = createPiece();
+                        confettiPieces[index].y = -20; // Start just above the screen
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+    </script>
+</body>
+</html>
